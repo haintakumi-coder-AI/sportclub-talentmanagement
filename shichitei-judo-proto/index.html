@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>七帝柔道 評価シート プロトタイプ</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
+    <div class="bg-grid"></div>
+
+    <div id="app" class="app">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="brand-mark">七</div>
+          <div>
+            <div class="brand-title">七帝柔道</div>
+            <div class="brand-sub">評価シート</div>
+          </div>
+        </div>
+
+        <nav class="nav">
+          <button class="nav-item" data-view="dashboard">ダッシュボード</button>
+          <button class="nav-item" data-view="notes">練習ノート</button>
+          <button class="nav-item" data-view="athletes">選手一覧</button>
+          <button class="nav-item" data-view="evaluation">評価入力</button>
+          <button class="nav-item" data-view="analysis">分析</button>
+          <button class="nav-item admin-only" data-view="admin">管理</button>
+        </nav>
+
+        <div class="user-card">
+          <div class="user-name" id="userName">-</div>
+          <div class="user-role" id="userRole">-</div>
+          <button class="ghost" id="logoutBtn">ログアウト</button>
+        </div>
+      </aside>
+
+      <main class="main">
+        <header class="topbar">
+          <div>
+            <div class="page-title" id="pageTitle">ダッシュボード</div>
+            <div class="page-sub" id="pageSub">全体サマリーと最新動向</div>
+          </div>
+          <div class="top-actions">
+            <button class="primary" id="quickAddEval">評価を追加</button>
+          </div>
+        </header>
+
+        <section id="view-dashboard" class="view">
+          <div class="calendar-header">
+            <button class="ghost" id="prevMonth">←</button>
+            <div class="calendar-title" id="calendarTitle">2025年3月</div>
+            <button class="ghost" id="nextMonth">→</button>
+          </div>
+          <div class="calendar-weekdays">
+            <div>日</div><div>月</div><div>火</div><div>水</div><div>木</div><div>金</div><div>土</div>
+          </div>
+          <div id="calendarGrid" class="calendar-grid"></div>
+        </section>
+
+        <section id="view-notes" class="view hidden">
+          <div class="card">
+            <div class="card-title">練習ノート（日次）</div>
+            <form id="dailyNoteForm" class="form">
+              <div class="form-row">
+                <label>練習日</label>
+                <input type="date" id="noteDate" />
+              </div>
+              <div class="form-row">
+                <label>参加区分</label>
+                <select id="noteParticipation">
+                  <option value="参加">参加</option>
+                  <option value="欠席">欠席</option>
+                  <option value="見学">見学</option>
+                  <option value="遅刻">遅刻</option>
+                  <option value="早退">早退</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <label>今日の練習内容</label>
+                <textarea id="noteContent" rows="2"></textarea>
+              </div>
+              <div class="form-row">
+                <label>今日の気づき</label>
+                <textarea id="noteInsights" rows="2"></textarea>
+              </div>
+              <div class="form-row">
+                <label>できたこと</label>
+                <textarea id="noteGood" rows="2"></textarea>
+              </div>
+              <div class="form-row">
+                <label>課題</label>
+                <textarea id="noteIssues" rows="2"></textarea>
+              </div>
+              <div class="form-row">
+                <label>明日意識すること</label>
+                <textarea id="noteNext" rows="2"></textarea>
+              </div>
+              <div class="form-row">
+                <label>自由記述</label>
+                <textarea id="noteFree" rows="2"></textarea>
+              </div>
+              <button class="primary" type="submit">保存</button>
+            </form>
+          </div>
+
+          <div class="card">
+            <div class="card-title">過去ノート</div>
+            <div id="noteHistory" class="list"></div>
+          </div>
+        </section>
+
+        <section id="view-athletes" class="view hidden">
+          <div class="toolbar">
+            <input type="text" id="athleteSearch" placeholder="名前で検索" />
+            <select id="athleteGradeFilter">
+              <option value="">学年で絞り込み</option>
+              <option value="1">1年</option>
+              <option value="2">2年</option>
+              <option value="3">3年</option>
+              <option value="4">4年</option>
+            </select>
+            <button class="primary admin-only" id="addAthleteBtn">選手を追加</button>
+          </div>
+          <div class="card">
+            <div class="table" id="athleteTable"></div>
+          </div>
+        </section>
+
+        <section id="view-athlete-detail" class="view hidden">
+          <div class="detail-header">
+            <button class="ghost" id="backToAthletes">← 一覧へ戻る</button>
+            <div>
+              <div class="detail-name" id="detailName">-</div>
+              <div class="detail-meta" id="detailMeta">-</div>
+            </div>
+            <button class="primary" id="addEvalFromDetail">この選手を評価</button>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-title">最新評価</div>
+              <div id="latestEval"></div>
+            </div>
+            <div class="card">
+              <div class="card-title">レーダーチャート</div>
+              <div id="radarChart" class="chart"></div>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-title">評価履歴</div>
+              <div class="table" id="evalHistory"></div>
+            </div>
+            <div class="card">
+              <div class="card-title">平均スコア推移</div>
+              <div id="lineChart" class="chart"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">コメント履歴</div>
+            <div id="commentHistory" class="list"></div>
+          </div>
+        </section>
+
+        <section id="view-evaluation" class="view hidden">
+          <div class="card">
+            <div class="card-title">評価入力</div>
+            <form id="evaluationForm" class="form">
+              <div class="form-row">
+                <label>選手</label>
+                <select id="evalAthlete"></select>
+              </div>
+              <div class="form-row">
+                <label>評価日</label>
+                <input type="date" id="evalDate" />
+              </div>
+              <div class="form-row">
+                <label>評価タイプ</label>
+                <select id="evalType">
+                  <option value="coach">指導者評価</option>
+                  <option value="self">自己評価</option>
+                </select>
+              </div>
+              <div id="axisInputs"></div>
+              <div class="form-row">
+                <label>総評</label>
+                <textarea id="overallComment" rows="2"></textarea>
+              </div>
+              <div class="form-row">
+                <label>良かった点</label>
+                <textarea id="strengthsComment" rows="2"></textarea>
+              </div>
+              <div class="form-row">
+                <label>課題</label>
+                <textarea id="issuesComment" rows="2"></textarea>
+              </div>
+              <div class="form-row">
+                <label>次回重点テーマ</label>
+                <textarea id="nextFocusComment" rows="2"></textarea>
+              </div>
+              <div class="form-row">
+                <label>月末振り返り（記入者）</label>
+                <textarea id="monthlyReview" rows="3" placeholder="今月の目標の振り返り"></textarea>
+              </div>
+              <div class="form-row">
+                <label>翌月の目標（記入者）</label>
+                <textarea id="nextMonthGoals" rows="3" placeholder="翌月の目標を作成"></textarea>
+              </div>
+              <div class="form-hint">月末（各月の最終日）に今月の振り返りと翌月の目標を入力してください。</div>
+              <button class="primary" type="submit">保存</button>
+            </form>
+          </div>
+
+          <div class="card" id="previousEvalCard">
+            <div class="card-title">前回評価（参考）</div>
+            <div id="previousEval"></div>
+          </div>
+        </section>
+
+        <section id="view-analysis" class="view hidden">
+          <div class="card">
+            <div class="card-title">分析条件</div>
+            <div class="toolbar">
+              <input type="date" id="filterFrom" />
+              <input type="date" id="filterTo" />
+              <select id="filterGrade">
+                <option value="">学年</option>
+                <option value="1">1年</option>
+                <option value="2">2年</option>
+                <option value="3">3年</option>
+                <option value="4">4年</option>
+              </select>
+              <select id="filterAxis"></select>
+              <select id="filterLevel">
+                <option value="">レベル</option>
+                <option value="A">A</option>
+                <option value="B">B</option>
+                <option value="C">C</option>
+                <option value="D">D</option>
+                <option value="E">E</option>
+              </select>
+              <button class="primary" id="applyFilters">絞り込む</button>
+              <button class="ghost" id="exportCsv">CSV出力</button>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-title">集計結果</div>
+              <div id="analysisSummary"></div>
+            </div>
+            <div class="card">
+              <div class="card-title">評価分布</div>
+              <div id="distributionChart" class="mini-chart"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title">詳細データ</div>
+            <div class="table" id="analysisTable"></div>
+          </div>
+        </section>
+
+        <section id="view-admin" class="view hidden">
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-title">評価軸マスタ</div>
+              <div class="toolbar">
+                <button class="primary" id="addAxisBtn">評価軸を追加</button>
+              </div>
+              <div class="table" id="axisTable"></div>
+            </div>
+            <div class="card">
+              <div class="card-title">ユーザー管理</div>
+              <div class="toolbar">
+                <button class="primary" id="addUserBtn">ユーザー追加</button>
+              </div>
+              <div class="table" id="userTable"></div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <div id="loginModal" class="modal">
+      <div class="modal-card">
+        <div class="modal-title">ログイン</div>
+        <div class="modal-sub">管理者または記入者でログインしてください</div>
+        <form id="loginForm" class="form">
+          <div class="form-row">
+            <label>メールアドレス</label>
+            <input type="email" id="loginEmail" required />
+          </div>
+          <div class="form-row">
+            <label>パスワード</label>
+            <input type="password" id="loginPassword" required />
+          </div>
+          <button class="primary" type="submit">ログイン</button>
+        </form>
+        <div class="hint">
+          管理者: admin@judo.local / admin123<br />
+          記入者: eval@judo.local / eval123<br />
+          マネージャー: manager@judo.local / manager123<br />
+          選手: player01@judo.local / player123
+        </div>
+      </div>
+    </div>
+
+    <div id="formModal" class="modal">
+      <div class="modal-card wide">
+        <div class="modal-title" id="formModalTitle">編集</div>
+        <div id="formModalBody"></div>
+        <div class="modal-actions">
+          <button class="ghost" id="closeFormModal">閉じる</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="dayDetailModal" class="modal">
+      <div class="modal-card wide">
+        <div class="modal-title" id="dayDetailTitle">日付詳細</div>
+        <div class="modal-sub" id="dayDetailSub"></div>
+        <div id="dayDetailBody"></div>
+        <div class="modal-actions">
+          <button class="ghost" id="closeDayDetail">閉じる</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
