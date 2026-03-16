@@ -1,0 +1,2 @@
+# sportclub-talentmanagement
+部活に所属するメンバーのタレントマネジメントを行うためのものですね。
